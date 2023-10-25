@@ -84,30 +84,10 @@ _G.packer_plugins = {
     path = "/home/uczen/.local/share/nvim/site/pack/packer/start/plenary.nvim",
     url = "https://github.com/nvim-lua/plenary.nvim"
   },
-  rnvimr = {
-    loaded = true,
-    path = "/home/uczen/.local/share/nvim/site/pack/packer/start/rnvimr",
-    url = "https://github.com/kevinhwang91/rnvimr"
-  },
   ["telescope.nvim"] = {
     loaded = true,
     path = "/home/uczen/.local/share/nvim/site/pack/packer/start/telescope.nvim",
     url = "https://github.com/nvim-telescope/telescope.nvim"
-  },
-  ["vim-closer"] = {
-    loaded = true,
-    path = "/home/uczen/.local/share/nvim/site/pack/packer/start/vim-closer",
-    url = "https://github.com/rstacruz/vim-closer"
-  },
-  ["vim-solarized8"] = {
-    loaded = true,
-    path = "/home/uczen/.local/share/nvim/site/pack/packer/start/vim-solarized8",
-    url = "https://github.com/lifepillar/vim-solarized8"
-  },
-  vimwiki = {
-    loaded = true,
-    path = "/home/uczen/.local/share/nvim/site/pack/packer/start/vimwiki",
-    url = "https://github.com/vimwiki/vimwiki"
   }
 }
 
