@@ -10,4 +10,6 @@ return require('packer').startup(function(use)
   use 'rstacruz/vim-closer'
 
   use 'kevinhwang91/rnvimr'
+
+  use({ 'rose-pine/neovim', as = 'rose-pine' })
 end)
