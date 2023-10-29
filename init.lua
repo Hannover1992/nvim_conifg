@@ -3,4 +3,3 @@ require("theprimeagen")
 require("theprimeagen.remap")
 require("theprimeagen.packer")
 require('telescope').setup{}
-print("hello")
