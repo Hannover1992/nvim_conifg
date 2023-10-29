@@ -6,15 +6,18 @@ return require('packer').startup(function(use)
   -- Add Telescope and Plenary
   use 'nvim-telescope/telescope.nvim'
   use 'nvim-lua/plenary.nvim'
+
   
   -- Simple plugins can be specified as strings
   use 'rstacruz/vim-closer'
-
   use 'kevinhwang91/rnvimr'
 
   use({ 'rose-pine/neovim', as = 'rose-pine' })
+
   use ('nvim-treesitter/nvim-treesitter', {run  = ':TSUpdate'})
-use('ThePrimeagen/harpoon')
+
+  use('ThePrimeagen/harpoon')
+
 
 
   use {
