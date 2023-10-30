@@ -13,6 +13,9 @@ vim.keymap.set("n", "<leader>r", function()
 end, { noremap = true, silent = true })
 
 
+vim.keymap.set("v", "<leader>c", [[:s/^/"/<CR>:noh<CR>]], { silent = true })
+
+
 --local mark = require("harpoon.mark")
 --local ui   = require("harpoon.ui")
 
