@@ -1,13 +1,9 @@
 return require('packer').startup(function(use)
-  
   -- Packer can manage itself
   use 'wbthomason/packer.nvim'
-  
   -- Add Telescope and Plenary
   use 'nvim-telescope/telescope.nvim'
   use 'nvim-lua/plenary.nvim'
-
-  
   -- Simple plugins can be specified as strings
   use 'rstacruz/vim-closer'
   use 'kevinhwang91/rnvimr'
@@ -32,6 +28,7 @@ return require('packer').startup(function(use)
 		  {'neovim/nvim-lspconfig'},
 		  {'williamboman/mason.nvim'},
 		  {'williamboman/mason-lspconfig.nvim'},
+
 		  -- Autocompletion
 		  {'hrsh7th/nvim-cmp'},
 		  {'hrsh7th/cmp-nvim-lsp'},
@@ -45,6 +42,12 @@ return require('packer').startup(function(use)
 		  -- Snippet
 		  {'rafamadriz/friendly-snippets'},
 		  {'L3MON4D3/LuaSnip'}
+
+
+
+
+
+		  ---
 	  }
 	}
 
