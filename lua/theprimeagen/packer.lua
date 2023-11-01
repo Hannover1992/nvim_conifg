@@ -55,6 +55,25 @@ return require('packer').startup(function(use)
 		}
 
 
+
+		-- stable version
+		use {"shortcuts/no-neck-pain.nvim", tag = "*" }
+
+
+		-- auto save
+		use({
+				"Pocco81/auto-save.nvim",
+				config = function()
+						require("auto-save").setup {
+								-- your config goes here
+								-- or just leave it empty :)
+						}
+				end,
+		})
+
+
+
+
 end)
 
 
