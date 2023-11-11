@@ -12,6 +12,7 @@ require('telescope').setup{}
 
 
 vim.cmd('set relativenumber')
+vim.cmd('set number')
 
 -- vim.cmd('set tabstop=4')
 -- vim.cmd('set softtabstop=4')
