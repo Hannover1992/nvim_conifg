@@ -71,6 +71,13 @@ return require('packer').startup(function(use)
 				end,
 		})
 
+		--Debugger
+		use {'mfussenegger/nvim-dap'}
+		use {"rcarriga/nvim-dap-ui", require = {"mfussenegger/nvim-dap"}}
+		use {'theHamsta/nvim-dap-virtual-text'}
+		require('dapui').setup()
+
+
 
 
 
