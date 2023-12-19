@@ -20,3 +20,8 @@ vim.keymap.set("v", "<leader>c", [[:s/^/"/<CR>:noh<CR>]], { silent = true })
 --local ui   = require("harpoon.ui")
 
 
+-- chat GPT
+
+vim.keymap.set('n', '<Leader>gg', '<cmd>:ChatGPT<cr>')
+-- vim.keymap.set('n', '<Leader>ca', '<cmd>:ChatGPTActAs<cr>')
+vim.keymap.set('v', '<Leader>gc', '<cmd>:ChatGPTEditWithInstructions<cr>')
