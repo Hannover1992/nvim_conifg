@@ -97,10 +97,7 @@ return require('packer').startup(function(use) -- Packer can manage itself
 		}
 	})
 
-	-- not finisched yet
-	--
 	--Debugger
-	-- use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
 	use {'mfussenegger/nvim-dap'}
 	use {
 		"rcarriga/nvim-dap-ui",
@@ -112,11 +109,8 @@ return require('packer').startup(function(use) -- Packer can manage itself
 		}
 	}
 
+	-- not finisched yet
 	use {'theHamsta/nvim-dap-virtual-text'}
-	use {'leoluz/nvim-dap-go'}
-
-
-
 
 end)
 
