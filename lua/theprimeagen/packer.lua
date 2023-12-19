@@ -77,6 +77,18 @@ return require('packer').startup(function(use)
 		use {'theHamsta/nvim-dap-virtual-text'}
 		require('dapui').setup()
 
+		--Wim viki
+		use ({ 'vimwiki/vimwiki'})
+		--
+		--
+		-- REfactor
+		use {
+			"ThePrimeagen/refactoring.nvim",
+			requires = {
+				{"nvim-lua/plenary.nvim"},
+				{"nvim-treesitter/nvim-treesitter"}
+			}
+		}
 
 
 

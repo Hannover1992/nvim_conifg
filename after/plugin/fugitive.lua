@@ -1,4 +1,7 @@
-vim.keymap.set("n", "<leader>gs", function() vim.cmd("Git") end, { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>gs", function() vim.cmd("0Git") end, { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>gl", function() vim.cmd("0Git log") end,{ noremap = true, silent = true })
+vim.keymap.set("n", "<leader>gd", function() vim.cmd("Gvdiffsplit") end,{ noremap = true, silent = true })
+vim.keymap.set("n", "<leader>gD", function() vim.cmd("G difftool -y") end,{ noremap = true, silent = true })
 -- Function for Git add
 --
 vim.keymap.set("n", "<leader>ga", function()
@@ -21,4 +24,6 @@ vim.keymap.set("n", "<leader>gc", function()
         print("Commit message is empty. Aborting commit.")
     end
 end, { noremap = true, silent = true })
+
+
 
