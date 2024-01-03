@@ -72,9 +72,7 @@ return require('packer').startup(function(use) -- Packer can manage itself
 
 
 	--Wim viki
-	use ({ 'vimwiki/vimwiki'})
-	--
-	--
+	use { 'vimwiki/vimwiki' }
 	-- REfactor
 	use {
 		"ThePrimeagen/refactoring.nvim",
@@ -110,7 +108,11 @@ return require('packer').startup(function(use) -- Packer can manage itself
 	}
 
 	-- not finisched yet
-	use {'theHamsta/nvim-dap-virtual-text'}
+	use {'theHamsta/nvim-dap-virtual-text',
+		config = function ()
+			require("nvim-dap-virtual-text").setup()
+		end
+	}
 
 end)
 
