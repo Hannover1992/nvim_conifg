@@ -4,7 +4,8 @@ lsp_zero.on_attach(function(client, bufnr)
 	local opts = {buffer = bufnr, remap = false}
 
 	vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-	vim.keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", opts) 
+	vim.keymap.set("n", "gi", function() vim.lsp.buf.implementation() end, opts)
+	vim.keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", opts)
 	vim.keymap.set("n", "gr", "<cmd>Telescope lsp_references<CR>", opts) -- show definition, references
 	vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
 	vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
@@ -31,6 +32,7 @@ require('mason-lspconfig').setup({
 		'html',          -- for HTML
 		'pyright',       -- for Python
 		'bashls',        -- for Bash
+		'jdtls',         -- for Java
 	};
 	handlers = {
 		lsp_zero.default_setup,
@@ -58,3 +60,19 @@ cmp.setup({
 		['<C-Space>'] = cmp.mapping.complete(),
 	}),
 })
+
+require'lspconfig'.omnisharp.setup{}
+
+
+local lsp_config= require("lspconfig")
+
+lsp_config.lua_ls.setup(lsp_zero.nvim_lua_ls())
+
+lsp_config['omnisharp'].setup {
+    handlers = {
+    ["textDocument/definition"] = require('omnisharp_extended').handler,
+  },
+    cmd = { '/home/uczen/.local/share/nvim/mason/packages/omnisharp/omnisharp', '--languageserver' }
+}
+
+lsp_zero.setup()
