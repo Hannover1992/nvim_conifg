@@ -11,36 +11,13 @@ vim.api.nvim_set_keymap("n", "<leader>db", ":lua require('dap').toggle_breakpoin
 
 local dap = require('dap')
 
--- -- this is for the c# developemen
---
--- dap.adapters.coreclr = {
---   type = 'executable',
---   command = '/home/uczen/.local/share/nvim/mason/packages/netcoredbg/netcoredbg', -- Pfad zu netcoredbg
---   args = {'--interpreter=vscode'}
--- }
---
--- dap.configurations.cs = {
---   {
---     type = "coreclr",
---     name = "launch - netcoredbg",
---     request = "launch",
---     program = function()
---       -- Automatischer Pfad zur DLL
---       local project_name = 'Service.Algo.Avis'  -- Projektname
---       local build_dir = '/mnt/Brain/9Work/GLB/code/Service.Algo.Avis/src/1-Services/Service.Algo.Avis/bin/Debug/net6.0/' -- Pfad zum Build-Verzeichnis
---       return build_dir .. project_name .. '.dll'
---     end,
---   },
--- }
-
-
 -- google-chrome --remote-debugging-port=9222 --user-data-dir=/home/uczen/.temp/google
 
 
--- require('dap').set_log_level('DEBUG')
---
---
---
+require('dap').set_log_level('DEBUG')
+
+
+
 -- -- Node Adapter
 -- dap.adapters.node2 = {
 --   type = 'executable',
@@ -53,12 +30,6 @@ local dap = require('dap')
 --   type = "executable",
 --   command = "node",
 --   args = {"/home/uczen/.local/share/nvim/mason/packages/chrome-debug-adapter/out/src/chromeDebug.js"}
--- }
---
--- dap.adapters.coreclr = {
---   type = 'executable',
---   command = '/home/uczen/.local/share/nvim/mason/packages/netcoredbg/netcoredbg',
---   args = {'--interpreter=vscode'}
 -- }
 --
 -- -- Configurations
@@ -92,41 +63,50 @@ local dap = require('dap')
 
 
 --
-local dap = require('dap')
 
+-- -- Configure the .NET Core debugger (netcoredbg) adapter
 dap.adapters.coreclr = {
   type = 'executable',
-  command = '/home/uczen/.local/share/nvim/mason/packages/netcoredbg/netcoredbg', -- Path to netcoredbg
+  command = '/home/uczen/.local/share/nvim/mason/packages/netcoredbg/netcoredbg', -- Ensure this path is correct
   args = {'--interpreter=vscode'}
 }
-
+--
+-- -- Define debugging configurations for C# projects
 dap.configurations.cs = {
   {
+    -- Configuration name that appears in the debugging start menu
     type = "coreclr",
-    name = "launch - netcoredbg",
+    name = "Launch - Service.Algo.Avis",
     request = "launch",
-    program = function()
-      return vim.fn.input('Path to dll: ', vim.fn.getcwd() .. '/', 'file')
-    end,
-  },
-}
 
-dap.configurations.cs = {
-  {
-    type = "coreclr",
-    name = "launch - netcoredbg",
-    request = "launch",
+    -- Determines the path to the DLL file to debug
     program = function()
-      local project_name = 'Service.Algo.Avis'  -- Aktualisierter Projektname
-      -- local build_dir = vim.fn.getcwd() .. '/src/1-Services/Service.Algo.Avis/bin/Debug/net6.0/' -- Angepasster Pfad
-      local build_dir = vim.fn.getcwd() .. '/src/1-Services/Service.Algo.Avis/' -- Angepasster Pfad
+      -- Here, we assume your DLL is in the standard .NET build output directory
+	  local project_name = 'Service.Algo.Avis' -- The exact name of your project
+      local project_name = 'Asd.Service.Algo.WebApp' -- The exact name of your project
+      local project_name = 'Asd.Service.Algo.Zuko' -- The exact name of your project
+      -- local project_name = 'Asd.Service.Algo.Dashboard'
+
+	  -- local build_dir = vim.fn.getcwd() .. '/bin/Debug/net6.0/'
+      local build_dir = vim.fn.getcwd() .. '/src/1-Services/' .. project_name .. '/bin/Debug/net6.0/' -- Adjust the path as needed
       return build_dir .. project_name .. '.dll'
+
     end,
+
+    -- Sets the current working directory to the project root
+	cwd = vim.fn.getcwd(),
+
+    -- Example of setting environment variables for the debug session
+    env = function()
+      return { }
+    end,
+
+    -- Controls whether the debugger stops at the entry point of the program
+    stopAtEntry = true, -- Change to true if you want to break at the program start
   },
 }
 
---
---
+
 -- local dap = require('dap')
 --
 -- dap.adapters.python = {
