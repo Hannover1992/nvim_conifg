@@ -11,118 +11,112 @@ vim.api.nvim_set_keymap("n", "<leader>db", ":lua require('dap').toggle_breakpoin
 
 local dap = require('dap')
 
--- google-chrome --remote-debugging-port=9222 --user-data-dir=/home/uczen/.temp/google
-
-
 require('dap').set_log_level('DEBUG')
 
 
+local function configure_c_sharp_debugger()
 
--- -- Node Adapter
--- dap.adapters.node2 = {
---   type = 'executable',
---   command = 'node',
---   args = { '/home/uczen/.local/share/nvim/mason/packages/node-debug2-adapter/out/src/nodeDebug.js' },
--- }
---
--- -- Chrome Adapter
--- dap.adapters.chrome = {
---   type = "executable",
---   command = "node",
---   args = {"/home/uczen/.local/share/nvim/mason/packages/chrome-debug-adapter/out/src/chromeDebug.js"}
--- }
---
--- -- Configurations
--- dap.configurations.typescript = {
---   -- Node configuration
---   {
---     name = 'Launch Node',
---     type = 'node2',
---     request = 'launch',
---     program = '${workspaceFolder}/build/index.js',
---     cwd = vim.fn.getcwd(),
---     sourceMaps = true,
---     protocol = 'inspector',
---     outFiles = { '${workspaceFolder}/build/**/*.js' },
---     console = 'integratedTerminal',
---   },
---   -- Chrome configuration
---   {
---     name = "Attach Chrome",
---     type = "chrome",
---     request = "attach",
---     program = "${file}",
---     sourceMaps = true,
---     protocol = "inspector",
---     port = 9222,
---     webRoot = "${workspaceFolder}"
---   },
---
--- }
+	dap.adapters.coreclr = {
+		type = 'executable',
+		command = '/home/uczen/.local/share/nvim/mason/packages/netcoredbg/netcoredbg', -- Ensure this path is correct
+		args = {'--interpreter=vscode'}
+	}
+
+	dap.configurations.cs = {
+		{
+			type = "coreclr",
+			name = "Launch - Service.Algo.Avis",
+			request = "launch",
+			program = function()
+				local project_name = 'Service.Algo.Avis' -- The exact name of your project
+				local project_name = 'Asd.Service.Algo.WebApp' -- The exact name of your project
+				local project_name = 'Asd.Service.Algo.Zuko' -- The exact name of your project
+				local build_dir = vim.fn.getcwd() .. '/src/1-Services/' .. project_name .. '/bin/Debug/net6.0/' -- Adjust the path as needed
+				return build_dir .. project_name .. '.dll'
+
+			end,
+
+			cwd = vim.fn.getcwd(),
+
+			env = function()
+				return { }
+			end,
+
+			stopAtEntry = true, -- Change to true if you want to break at the program start
+		},
+	}
+
+end
+
+local function configure_python_debugger()
+	dap.adapters.python = {
+		type = 'executable';
+		command = '/home/uczen/.local/share/nvim/mason/packages/debugpy/venv/bin/python'; -- Path to the Python executable in the virtual environment
+		args = { '-m', 'debugpy.adapter' };
+	}
+
+	dap.configurations.python = {
+		{
+			name = 'pythone debug run',
+			type = 'python';  -- The type here should match the adapter name
+			request = 'launch';
+			program = "${file}";  -- This should point to the file you're debugging
+			pythonPath = function()
+				return '/usr/bin/python3'  -- Again, the path to the Python executable in the virtual environment
+			end;
+		}
+	}
+
+end
+
+local function configure_typescript_debugger()
+
+	dap.adapters.node2 = {
+		type = 'executable',
+		command = 'node',
+		args = { '/home/uczen/.local/share/nvim/mason/packages/node-debug2-adapter/out/src/nodeDebug.js' },
+	}
+
+	-- Chrome Adapter
+	dap.adapters.chrome = {
+		type = "executable",
+		command = "node",
+		args = {"/home/uczen/.local/share/nvim/mason/packages/chrome-debug-adapter/out/src/chromeDebug.js"}
+	}
+
+	-- Configurations
+	dap.configurations.typescript = {
+		-- Node configuration
+		{
+			name = 'Launch Node',
+			type = 'node2',
+			request = 'launch',
+			program = '${workspaceFolder}/build/index.js',
+			cwd = vim.fn.getcwd(),
+			sourceMaps = true,
+			protocol = 'inspector',
+			outFiles = { '${workspaceFolder}/build/**/*.js' },
+			console = 'integratedTerminal',
+		},
+		-- Chrome configuration
+		{
+			name = "Attach Chrome",
+			type = "chrome",
+			request = "attach",
+			program = "${file}",
+			sourceMaps = true,
+			protocol = "inspector",
+			port = 9222,
+			webRoot = "${workspaceFolder}"
+		},
+
+	}
 
 
-
---
-
--- -- Configure the .NET Core debugger (netcoredbg) adapter
-dap.adapters.coreclr = {
-  type = 'executable',
-  command = '/home/uczen/.local/share/nvim/mason/packages/netcoredbg/netcoredbg', -- Ensure this path is correct
-  args = {'--interpreter=vscode'}
-}
---
--- -- Define debugging configurations for C# projects
-dap.configurations.cs = {
-  {
-    -- Configuration name that appears in the debugging start menu
-    type = "coreclr",
-    name = "Launch - Service.Algo.Avis",
-    request = "launch",
-
-    -- Determines the path to the DLL file to debug
-    program = function()
-      -- Here, we assume your DLL is in the standard .NET build output directory
-	  local project_name = 'Service.Algo.Avis' -- The exact name of your project
-      local project_name = 'Asd.Service.Algo.WebApp' -- The exact name of your project
-      local project_name = 'Asd.Service.Algo.Zuko' -- The exact name of your project
-      -- local project_name = 'Asd.Service.Algo.Dashboard'
-
-	  -- local build_dir = vim.fn.getcwd() .. '/bin/Debug/net6.0/'
-      local build_dir = vim.fn.getcwd() .. '/src/1-Services/' .. project_name .. '/bin/Debug/net6.0/' -- Adjust the path as needed
-      return build_dir .. project_name .. '.dll'
-
-    end,
-
-    -- Sets the current working directory to the project root
-	cwd = vim.fn.getcwd(),
-
-    -- Example of setting environment variables for the debug session
-    env = function()
-      return { }
-    end,
-
-    -- Controls whether the debugger stops at the entry point of the program
-    stopAtEntry = true, -- Change to true if you want to break at the program start
-  },
-}
+end
 
 
--- local dap = require('dap')
---
--- dap.adapters.python = {
---   type = 'executable';
---   command = '/home/uczen/.local/share/nvim/mason/packages/debugpy/venv/bin/python'; -- Path to the Python executable in the virtual environment
---   args = { '-m', 'debugpy.adapter' };
--- }
---
--- dap.configurations.python = {
--- 	  {
--- 	name = 'pythone debug run',
--- 	    type = 'python';  -- The type here should match the adapter name
--- 	    request = 'launch';
--- 	    program = "${file}";  -- This should point to the file you're debugging
--- 	    pythonPath = function()
--- 	      return '/usr/bin/python3'  -- Again, the path to the Python executable in the virtual environment
--- 	    end;
--- 	  }
---   }
+configure_typescript_debugger()
+-- configure_python_debugger()
+-- configure_c_sharp_debugger()
+
