@@ -54,6 +54,8 @@ return require('packer').startup(function(use) -- Packer can manage itself
 	}
 
 
+	-- omni sharp
+	use { 'Hoffs/omnisharp-extended-lsp.nvim' }
 
 	-- stable version
 	use {"shortcuts/no-neck-pain.nvim", tag = "*" }
@@ -106,6 +108,9 @@ return require('packer').startup(function(use) -- Packer can manage itself
 			"mfussenegger/nvim-dap"
 		}
 	}
+
+	--Solarized
+	use 'shaunsingh/solarized.nvim'
 
 	-- not finisched yet
 	use {'theHamsta/nvim-dap-virtual-text',
