@@ -9,6 +9,13 @@ vim.cmd('set softtabstop=4')
 vim.cmd('set shiftwidth=4')
 vim.cmd('set guicursor=""')
 
+vim.cmd([[
+  autocmd BufWinLeave *.* mkview
+  autocmd BufWinEnter *.* try | silent loadview | catch /E484/ | endtry
+]])
+
+
+
 vim.optswapfile=false
 vim.optbackup=false
 -- unenlich lange dree back
