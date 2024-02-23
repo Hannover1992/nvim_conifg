@@ -27,6 +27,6 @@ vim.keymap.set("v", "<leader>y", "\"+y")
 vim.keymap.set("n", "<leader>Y", "\"+Y")
 
 -- the grates reamp teh clipbaor of th ecomputer 
-vim.keymap.set("n", "<leader>p", "\"+p")
+vim.keymap.set("n", "<leader>pp", "\"+p")
 
 
