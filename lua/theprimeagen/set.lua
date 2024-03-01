@@ -1,39 +1,60 @@
--- vim.opt.tabstop = 4
--- vim.opt.softtabstop = 4
--- vim.shiftwidth = 4
+-- Set relative numbering
+vim.opt.relativenumber = true
 
-vim.cmd('set relativenumber')
-vim.cmd('set number')
-vim.cmd('set tabstop=4')
-vim.cmd('set softtabstop=4')
-vim.cmd('set shiftwidth=4')
-vim.cmd('set guicursor=""')
+-- Enable smart indentation
+vim.opt.smartindent = true
 
+-- Set line numbering
+vim.opt.number = true
+
+-- Set indentation options
+vim.opt.tabstop = 4       -- Number of space characters inserted for a tab
+vim.opt.softtabstop = 4   -- See ':help softtabstop' for details
+vim.opt.shiftwidth = 4    -- Width for autoindents
+vim.opt.expandtab = true  -- Converts tabs to spaces
+
+-- Disable GUI cursor
+vim.opt.guicursor = ""
+
+-- Automatically save and load folds
 vim.cmd([[
   autocmd BufWinLeave *.* mkview
   autocmd BufWinEnter *.* try | silent loadview | catch /E484/ | endtry
 ]])
 
+-- Disable swap file
+vim.opt.swapfile = false
 
+-- Disable backup file
+vim.opt.backup = false
 
-vim.optswapfile=false
-vim.optbackup=false
--- unenlich lange dree back
--- vim.cmd('set undodir=os.getenv("HOME") .. "/.vim/undodir"')
-vim.opt.termguicolors=true
--- Let the curso stay in the middle whiel jumping half page
+-- Enable terminal GUI colors
+vim.opt.termguicolors = true
+
+-- Center the screen when scrolling with Ctrl-d/u
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
--- also whiel search
+
+-- Center the screen when searching with n/N
 vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
--- the grates reamp teh clipbaor of th ecomputer 
+-- Remap clipboard interactions for easier copying/pasting
 vim.keymap.set("n", "<leader>y", "\"+y")
 vim.keymap.set("v", "<leader>y", "\"+y")
 vim.keymap.set("n", "<leader>Y", "\"+Y")
-
--- the grates reamp teh clipbaor of th ecomputer 
 vim.keymap.set("n", "<leader>pp", "\"+p")
 
+
+-- -- Aktiviert die Anzeige von unsichtbaren Zeichen
+-- vim.opt.list = true
+--
+-- -- Konfiguriert, welche unsichtbaren Zeichen wie dargestellt werden
+-- -- Leerzeichen werden als Punkte angezeigt
+-- -- Tabs werden als Pfeile dargestellt, gefolgt von einem Leerzeichen
+-- vim.opt.listchars = "space:⋅,tab:→ "
+--
+-- -- Optional: Wenn du auch das Ende von Zeilen darstellen möchtest
+-- vim.opt.listchars:append("eol:↴")
+--
 

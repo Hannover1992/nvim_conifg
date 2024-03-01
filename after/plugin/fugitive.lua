@@ -27,3 +27,22 @@ end, { noremap = true, silent = true })
 
 
 
+-- mein eigen entwicklugn
+
+-- function OpenAndDiff()
+--     -- Ersetze 'your-branch' mit dem Namen deines Branches, gegen den du vergleichen möchtest
+--     local branch = "AL-973"
+--     local development_branch = "development"
+--     -- Holt die Liste der Dateien, die sich zwischen den beiden Branches unterscheiden
+--     local files = vim.fn.systemlist("git diff --name-only " .. branch .. ".." .. development_branch)
+--     -- Öffnet jede Datei in einem neuen Tab und führt Gdiffsplit aus
+--     for _, file in ipairs(files) do
+--         vim.cmd("tabnew " .. file)
+--         vim.cmd("Gdiffsplit " .. development_branch)
+--     end
+-- end
+--
+--
+-- vim.api.nvim_set_keymap('n', '<leader>gt', ':lua OpenAndDiff()<CR>', { noremap = true, silent = true })
+--
+
