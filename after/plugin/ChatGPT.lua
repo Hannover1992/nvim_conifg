@@ -1,3 +1,6 @@
+vim.keymap.set('n', '<Leader>gg', '<cmd>:ChatGPT<cr>')
+-- vim.keymap.set('n', '<Leader>ca', '<cmd>:ChatGPTActAs<cr>')
+vim.keymap.set('v', '<Leader>gc', '<cmd>:ChatGPTEditWithInstructions<cr>')
 
 -- currentValue = 3.5
 -- function toggleValue()
@@ -182,3 +185,5 @@ require("chatgpt").setup
 		help_description = "@comment",
 	},
 }
+
+

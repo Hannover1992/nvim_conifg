@@ -44,5 +44,6 @@ local function run_command_in_float_win(cmd)
 end
 
 vim.keymap.set('n', '<leader>r', function()
-    run_command_in_float_win("bash -c 'javac Main.java && java Main'")
+    -- run_command_in_float_win("javac Main.java 2>&1 | tee >(xclip -selection c) ")
+    run_command_in_float_win("bash -c 'javac Application.java && java Application'")
 end, { noremap = true, silent = true })

@@ -47,7 +47,7 @@ return require('packer').startup(function(use) -- Packer can manage itself
 			{'hrsh7th/cmp-nvim-lsp'},
 			-- Snippet
 			{'L3MON4D3/LuaSnip'},
-			{'rafamadriz/friendly-snippets'},
+            { "rafamadriz/friendly-snippets" }
 
 
 		}
@@ -109,15 +109,41 @@ return require('packer').startup(function(use) -- Packer can manage itself
 		}
 	}
 
-	--Solarized
-	use 'shaunsingh/solarized.nvim'
+--Solarized
+use 'shaunsingh/solarized.nvim'
 
-	-- not finisched yet
-	use {'theHamsta/nvim-dap-virtual-text',
-		config = function ()
-			require("nvim-dap-virtual-text").setup()
-		end
-	}
+-- not finished yet
+use {'theHamsta/nvim-dap-virtual-text',
+	config = function ()
+		require("nvim-dap-virtual-text").setup()
+	end
+}
+
+--ZenMode
+use {'folke/zen-mode.nvim',
+	config = function ()
+		require("zen-mode").setup(
+		{
+			window = {
+				backdrop = 0.95,
+				width = 160, 
+				height = 1, 
+				options = {
+					list = true
+				},
+			},
+			plugins = {
+				options = {
+					enabled = true,
+				},
+				kitty = {
+					enabled = true,
+				},
+			},
+		}
+		)
+	end
+}
 
 end)
 

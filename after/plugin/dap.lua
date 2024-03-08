@@ -116,7 +116,7 @@ local function configure_typescript_debugger()
 end
 
 
-configure_typescript_debugger()
+-- configure_typescript_debugger()
 -- configure_python_debugger()
--- configure_c_sharp_debugger()
+configure_c_sharp_debugger()
 
