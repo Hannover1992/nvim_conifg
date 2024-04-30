@@ -1,9 +1,9 @@
 vim.keymap.set("n", "<leader>gs", function() vim.cmd("0Git") end, { noremap = true, silent = true })
 vim.keymap.set("n", "<leader>gl", function() vim.cmd("0Git log") end,{ noremap = true, silent = true })
--- vim.keymap.set("n", "<leader>gD", function() vim.cmd("Gvdiffsplit") end,{ noremap = true, silent = true })
+vim.keymap.set("n", "<leader>gD", function() vim.cmd("Gvdiffsplit") end,{ noremap = true, silent = true })
 
 
-vim.keymap.set("n", "<leader>gD", function()
+vim.keymap.set("n", "<leader>gL", function()
     local numCommits = tonumber(vim.fn.input("Anzahl der Commits eingeben: "))
     if numCommits == nil or numCommits <= 0 then
         return
@@ -12,6 +12,9 @@ vim.keymap.set("n", "<leader>gD", function()
     vim.cmd(command)
 end, { noremap = true, silent = true })
 -- vim.keymap.set("n", "<leader>gD", function() vim.cmd("G difftool -y") end,{ noremap = true, silent = true })
+
+
+
 -- Function for Git add
 --
 vim.keymap.set("n", "<leader>ga", function()
