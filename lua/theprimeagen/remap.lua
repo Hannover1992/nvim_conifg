@@ -1,33 +1,51 @@
-<<<<<<< HEAD
 vim.g.mapleader = " "
 --vim.keymap.set("n", "<leader>e", function() vim.cmd('Ex') end)
 vim.keymap.set("n", "<leader>pr", function() vim.cmd('RnvimrToggle') end) 
 -- vim.keymap.set("n", "<leader>r", function() vim.cmd('!sh run.sh') end, { noremap = true, silent = true })
+--
 vim.keymap.set("n", "<leader>r", function()
     vim.cmd('!javac Main.java 2>&1 | tee /dev/tty | xclip -selection clipboard')
-    vim.cmd('!javac Main.java && java Main')
+    vim.cmd('!javac Main.java && java -ea Main')
 end, { noremap = true, silent = true })
 
 
 local function save_to_clipboard_and_show_errors()
-  -- Speichere den Inhalt der aktuellen Datei in einer temporären Datei
+  --
+  local path = "./"
+
   local temp_file = "/tmp/nvim_clipboard_append.txt"
   vim.cmd('w ' .. temp_file)
 
-  -- Kompiliere die Java-Datei und leite Fehler in die temporäre Datei
-  vim.fn.system('javac Main.java 2>&1 | tee -a ' .. temp_file)
-
-  -- Kopiere den gesamten Inhalt der temporären Datei in die Zwischenablage
+  vim.fn.system('javac ' .. path .. 'Main.java 2>&1 | tee -a ' .. temp_file)
   vim.fn.system('cat ' .. temp_file .. ' | xclip -selection clipboard -i')
 
-  -- Optional: Lösche die temporäre Datei, wenn sie nicht mehr benötigt wird
   vim.fn.delete(temp_file)
-  vim.cmd('!javac Main.java && java Main')
+  vim.cmd('!javac ' .. path .. 'Main.java && java -ea ' .. path .. 'Main.java && rm ' .. path .. '*.class')
+
+
 end
+
+
+local function save_to_clipboard_and_show_errors_python()
+    --
+    local path = ""
+    
+    local temp_file = "/tmp/nvim_clipboard_append.txt"
+    vim.cmd('w ' .. temp_file)
+    
+    vim.fn.system('python3 ' .. path .. 'Main.py 2>&1 | tee -a ' .. temp_file)
+    vim.fn.system('cat ' .. temp_file .. ' | xclip -selection clipboard -i')
+    
+    vim.fn.delete(temp_file)
+    vim.cmd('!python3 ' .. path .. 'Main.py && rm ' .. path .. '*.class')
+end
+
 
 
 -- Setze Keymaps, die die Funktionen aufrufen
 vim.api.nvim_set_keymap('n', '<leader>r', '', { noremap = true, silent = true, callback = save_to_clipboard_and_show_errors })
+vim.api.nvim_set_keymap('n', '<leader>r', '', { noremap = true, silent = true, callback = save_to_clipboard_and_show_errors_python })
+-- vim.api.nvim_set_keymap('n', '<leader>r', '', { noremap = true, silent = true, callback = market })
 
 -- Setze einen Keymap, der die Funktion aufruft
 
@@ -40,20 +58,20 @@ vim.keymap.set("v", "<leader>c", [[:s/^/"/<CR>:noh<CR>]], { silent = true })
 
 
 -- chat GPT
+-- copilot
 
-
-
-=======
--- This should be at the beginning of your configuration
-vim.g.mapleader = " "  -- sets the leader key to space
-
--- ... your other configurations ...
-
-local set_keymap = vim.api.nvim_set_keymap
-local opts = { noremap = true, silent = true }
-
--- Your key mappings with the new leader key
-set_keymap('n', '<leader>pv', ':Ex<CR>', opts)
-set_keymap('n', '<leader>pr', ':RnvimrToggle<CR>', opts)
-set_keymap('n', '<leader>r', ':!sh run.sh<CR>', opts)
->>>>>>> aff9dc44bfaae2feb9acba86b5b9a09dc218874d
+-- If you'd rather use a key that isn't <Tab>, define an <expr> map that calls
+-- copilot#Accept().  Here's an example with CTRL-J:
+-- 
+--         imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
+--         let g:copilot_no_tab_map = v:true
+-- 
+-- Lua version:
+-- 
+--         vim.keymap.set('i', '<C-J>', 'copilot#Accept("\\<CR>")', {
+--           expr = true,
+--           replace_keycodes = false
+--         })
+--         vim.g.copilot_no_tab_map = true
+--
+ -- I would like to remap the...  I would like to remap the acceptance to control Y. 
