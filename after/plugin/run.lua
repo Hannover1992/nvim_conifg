@@ -15,8 +15,15 @@ local config = {
     clipboard_cmd = 'xclip -selection clipboard -i'
 }
 
--- Function to compile and display output, handle errors, and copy to clipboard
+-- Main compilation and output handling function
 local function compile_and_handle_output(language)
+
+
+    -- Retrieve current file content
+    
+    local temp_file = "/tmp/nvim_clipboard_append.txt"
+    vim.cmd('w! ' .. temp_file)
+
     local lang_config = config[language]
     local compile_command = lang_config.compile_run:gsub("{path}", "./")
 
@@ -48,9 +55,12 @@ local function compile_and_handle_output(language)
                     table.insert(errors, line)
                 end
             end
-            -- Concatenate current file content with errors and copy to clipboard
-            local file_content = table.concat(vim.api.nvim_buf_get_lines(0, 0, -1, false), "\n")
-            local all_content = file_content .. "\n" .. table.concat(errors, "\n")
+
+
+            -- Read file content
+            local file_content = vim.fn.system('cat ' .. temp_file)
+            -- Concatenate file content with errors and copy to clipboard
+            local all_content = "Current File Content:\n" .. file_content .. "\n\nErrors:\n" .. table.concat(errors, "\n")
             vim.fn.setreg('+', all_content)  -- Copy to clipboard
             vim.api.nvim_buf_set_option(buf, 'modifiable', false)
             vim.api.nvim_buf_set_keymap(buf, 'n', '<ESC>', '<cmd>bd!<CR>', {noremap = true, silent = true})
