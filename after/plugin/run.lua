@@ -1,3 +1,9 @@
+-- Constants for configuration
+local TEMP_FILE_PATH = "/tmp/nvim_clipboard_append.txt"
+local WINDOW_HEIGHT_FACTOR = 0.8
+local WINDOW_WIDTH_FACTOR = 0.8
+local ERROR_PATTERN = "error:"
+--
 -- Configuration Variables
 local config = {
     python = {
@@ -15,26 +21,24 @@ local config = {
     clipboard_cmd = 'xclip -selection clipboard -i'
 }
 
--- Main compilation and output handling function
-local function compile_and_handle_output(language)
 
+-- Retrieves the configuration for the given language
+local function get_language_config(language)
+    return config[language]
+end
 
-    -- Retrieve current file content
-    
-    local temp_file = "/tmp/nvim_clipboard_append.txt"
+-- Writes the current file content to a temporary file
+local function write_current_file_to_temp(temp_file)
     vim.cmd('w! ' .. temp_file)
+end
 
-    local lang_config = config[language]
-    local compile_command = lang_config.compile_run:gsub("{path}", "./")
-
-    -- Create buffer for the floating window
-    local buf = vim.api.nvim_create_buf(false, true)
+-- Creates a floating window and returns the buffer and window IDs
+local function create_floating_window()
     local width = vim.api.nvim_get_option("columns")
     local height = vim.api.nvim_get_option("lines")
-    local win_height = math.ceil(height * 0.8)
-    local win_width = math.ceil(width * 0.8)
-
-    -- Open the floating window
+    local win_height = math.ceil(height * WINDOW_HEIGHT_FACTOR)
+    local win_width = math.ceil(width * WINDOW_WIDTH_FACTOR)
+    local buf = vim.api.nvim_create_buf(false, true)
     local win = vim.api.nvim_open_win(buf, true, {
         relative = 'editor',
         width = win_width,
@@ -44,29 +48,39 @@ local function compile_and_handle_output(language)
         style = 'minimal',
         border = 'rounded',
     })
+    return buf, win
+end
 
-    -- Execute the compile command in a terminal within the floating window
+-- Compiles code and handles output in the terminal
+local function compile_and_handle_output_in_terminal(buf, compile_command)
     vim.fn.termopen(compile_command .. ' 2>&1', {
         on_exit = function()
             local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
             local errors = {}
             for _, line in ipairs(lines) do
-                if line:match("error:") then
+                if line:match(ERROR_PATTERN) then
                     table.insert(errors, line)
                 end
             end
-
-
-            -- Read file content
-            local file_content = vim.fn.system('cat ' .. temp_file)
-            -- Concatenate file content with errors and copy to clipboard
+            local file_content = vim.fn.system('cat ' .. TEMP_FILE_PATH)
             local all_content = "Current File Content:\n" .. file_content .. "\n\nErrors:\n" .. table.concat(errors, "\n")
             vim.fn.setreg('+', all_content)  -- Copy to clipboard
             vim.api.nvim_buf_set_option(buf, 'modifiable', false)
             vim.api.nvim_buf_set_keymap(buf, 'n', '<ESC>', '<cmd>bd!<CR>', {noremap = true, silent = true})
         end
     })
-    vim.cmd('startinsert')
+end
+
+-- Main compilation and output handling function
+local function compile_and_handle_output(language)
+    local lang_config = get_language_config(language)
+    local compile_command = lang_config.compile_run:gsub("{path}", "./")
+
+    write_current_file_to_temp(TEMP_FILE_PATH)
+    local buf, win = create_floating_window()
+    compile_and_handle_output_in_terminal(buf, compile_command)
+
+    vim.cmd('startinsert') -- Consider whether this is necessary
 end
 
 -- Key Mappings
