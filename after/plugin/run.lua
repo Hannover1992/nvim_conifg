@@ -5,7 +5,7 @@ local config = {
         cleanup = 'rm {path}*.pyc'
     },
     java = {
-        compile_run = 'javac {path}Main.java && java -ea {path}Main',
+        compile_run = 'javac {path}Main.java && java -ea {path}Main.java',
         cleanup = 'rm {path}*.class'
     },
     c_sharp = {
