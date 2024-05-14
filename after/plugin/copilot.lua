@@ -16,8 +16,13 @@ end
 
 
 
--- Set the keymap in normal mode
-vim.keymap.set('n', '<leader>ct', ToggleCopilot, { noremap = true, silent = true })
+-- -- fass die funktio oben zusammen
+-- Setze die Keymaps für Normal- und Insert-Modus
+local modes = {'n', 'i'}
+for _, mode in ipairs(modes) do
+  vim.keymap.set(mode, '<leader>ct', ToggleCopilot, { noremap = true, silent = true })
+end
+
 
 -- Toggle Copilot and open Copilot panel with Lua in Neovim
 vim.keymap.set('n', '<leader>cp', function() vim.cmd('Copilot panel') end, { noremap = true, silent = true })
