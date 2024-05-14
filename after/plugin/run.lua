@@ -15,7 +15,8 @@ local config = {
         cleanup = 'rm {path}*.class'
     },
     c_sharp = {
-        compile_run = 'mcs {path}Main.cs && mono {path}Main.exe',
+        -- compile_run = 'dotnet build && dotnet run',
+        compile_run = './run.sh',
         cleanup = 'rm {path}*.exe'
     },
     clipboard_cmd = 'xclip -selection clipboard -i'
