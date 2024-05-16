@@ -1,0 +1,3 @@
+INDEX VERSION 1.131+/home/uczen/.config/nvim/lua/theprimeagen/workspace/.metadata/.plugins/org.eclipse.jdt.core
+3842426239.index
+988348023.index

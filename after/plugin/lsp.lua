@@ -35,7 +35,6 @@ require('mason-lspconfig').setup({
         'html',          -- for HTML
         'pyright',       -- for Python
         'bashls',        -- for Bash
-        'jdtls',         -- for Java
     };
     handlers = {
         lsp_zero.default_setup,

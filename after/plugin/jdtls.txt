@@ -1,0 +1,1281 @@
+ Press q or <Esc> to close this window. Press <Tab> to view server doc.
+ 
+ Language client log: /home/uczen/.local/state/nvim/lsp.log
+ Detected filetype:   java
+ 
+ 1 client(s) attached to this buffer: 
+ 
+ Client: GitHub Copilot (id: 2, bufnr: [1])
+ 	filetypes:       
+ 	autostart:       false
+ 	root directory:  Running in single file mode.
+ 	cmd:             node /home/uczen/.local/share/nvim/site/pack/packer/start/copilot.vim/dist/agent.js --stdio
+ 
+ 1 active client(s) not attached to this buffer: 
+ 
+ Client: jdtls (id: 1, bufnr: [])
+ 	filetypes:       
+ 	autostart:       true
+ 	root directory:  /home/uczen/Uni/2Hor/Assignment_04/Auf1/
+ 	cmd:             /home/uczen/.local/state/nvim/jdtls/bin/jdtls
+ 
+ Configured servers list: bashls, lua_ls, angularls, html, tsserver, omnisharp, csharp_ls, eslint, rust_analyzer, texlab, cssls, pyright
+
+
+...
+my config
+Skip to content
+Navigation Menu
+mfussenegger
+/
+nvim-jdtls
+
+Type / to search
+
+Code
+Issues
+3
+Pull requests
+4
+Discussions
+Actions
+Wiki
+Security
+Insights
+Owner avatar
+nvim-jdtls
+Public
+mfussenegger/nvim-jdtls
+Go to file
+t
+Add file
+Folders and files
+Name		
+Latest commit
+mfussenegger
+mfussenegger
+Use vm.location as fallback if java-debug/resolveJavaExecutable is mi…
+8eb5f0d
+ · 
+2 months ago
+History
+.github
+Fix markdownlint warnings
+2 years ago
+doc
+Add start_opts arg to start_or_attach
+7 months ago
+lua
+Use vm.location as fallback if java-debug/resolveJavaExecutable is mi…
+2 months ago
+plugin
+Add support for decompiling .class files
+last year
+tests
+Handle class initialization failures in junit results
+2 years ago
+.editorconfig
+Add logic
+4 years ago
+.luacheckrc
+Set buftype=nofile and swapfile=false on jdt:// buffers
+2 years ago
+.luarc.json
+Add context param to dap test methods
+2 years ago
+.markdownlint.yaml
+Fix markdownlint warnings
+2 years ago
+LICENSE.txt
+Add license file
+4 years ago
+README.md
+Mention dependency management in readme for nvim-dap
+3 months ago
+lemmy.sh
+Add test generation functionality (optional with vscode-java-test)
+10 months ago
+Repository files navigation
+README
+GPL-3.0 license
+nvim-jdtls
+Extensions for the built-in Language Server Protocol support in Neovim (>= 0.6.0) for eclipse.jdt.ls.
+
+Audience
+This project follows the KISS principle and targets users with some experience with Neovim, Java and its build tools Maven or Gradle who prefer configuration as code over GUI configuration. Ease of use is not the main priority.
+
+If you prioritize ease of use over simplicity, you may want to use an alternative:
+
+coc-java
+vscode
+IntelliJ IDEA
+Eclipse
+Extensions
+ organize_imports function to organize imports
+ extract_variable function to introduce a local variable
+ extract_variable_all function to introduce a local variable and replace all occurrences.
+ extract_constant function to extract a constant
+ extract_method function to extract a block of code into a method
+ Open class file contents
+ Code action extensions
+ Generate constructors
+ Generate toString function
+ hashCode and equals generation.
+ Extract variables or methods
+ Generate delegate methods
+ Move package, instance method, static method or type
+ Signature refactoring
+ javap command to show bytecode of current file
+ jol command to show memory usage of current file (jol_path must be set)
+ jshell command to open up jshell with classpath from project set
+ Debugger support via nvim-dap
+ Optional vscode-java-test extensions
+ Generate tests via require("jdtls.tests").generate()
+ Jump to tests or subjects via require("jdtls.tests").goto_subjects()
+Take a look at a demo to see some of the functionality in action.
+
+Plugin Installation
+Requires Neovim (Latest stable (recommended) or nightly)
+nvim-jdtls is a plugin. Install it like any other Vim plugin:
+git clone https://github.com/mfussenegger/nvim-jdtls.git ~/.config/nvim/pack/plugins/start/nvim-jdtls
+Or with vim-plug: Plug 'mfussenegger/nvim-jdtls'
+Or with packer.nvim: use 'mfussenegger/nvim-jdtls'
+Or any other plugin manager
+Language Server Installation
+Install eclipse.jdt.ls by following their Installation instructions.
+
+Configuration (quickstart)
+Add the following to ~/.config/nvim/ftplugin/java.lua (See :help base-directory):
+
+local config = {
+    cmd = {'/path/to/jdt-language-server/bin/jdtls'},
+    root_dir = vim.fs.dirname(vim.fs.find({'gradlew', '.git', 'mvnw'}, { upward = true })[1]),
+}
+require('jdtls').start_or_attach(config)
+Important:
+
+eclipse.jdt.ls requires Java 17
+The jdtls script requires Python 3.9
+You'll have to teach eclipse.jdt.ls about your JDK installations by setting up runtimes if your projects use a different Java version than the one you're using for eclipse.jdt.ls itself. See Java XY language features are not available in the troubleshooting section further below to learn how to do that.
+This should get you started, but will create temporary eclipse data folders when you open a project. Please read the Configuration (verbose) section if you want more control over the configuration or want to understand how things work.
+
+Configuration (verbose)
+To configure nvim-jdtls, add the following in ftplugin/java.lua within the Neovim configuration base directory (e.g. ~/.config/nvim/ftplugin/java.lua, see :help base-directory).
+
+Watch out for the 💀, it indicates that you must adjust something.
+
+-- See `:help vim.lsp.start_client` for an overview of the supported `config` options.
+local config = {
+  -- The command that starts the language server
+  -- See: https://github.com/eclipse/eclipse.jdt.ls#running-from-the-command-line
+  cmd = {
+
+    -- 💀
+    'java', -- or '/path/to/java17_or_newer/bin/java'
+            -- depends on if `java` is in your $PATH env variable and if it points to the right version.
+
+    '-Declipse.application=org.eclipse.jdt.ls.core.id1',
+    '-Dosgi.bundles.defaultStartLevel=4',
+    '-Declipse.product=org.eclipse.jdt.ls.core.product',
+    '-Dlog.protocol=true',
+    '-Dlog.level=ALL',
+    '-Xmx1g',
+    '--add-modules=ALL-SYSTEM',
+    '--add-opens', 'java.base/java.util=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+
+    -- 💀
+    '-jar', '/path/to/jdtls_install_location/plugins/org.eclipse.equinox.launcher_VERSION_NUMBER.jar',
+         -- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                                       ^^^^^^^^^^^^^^
+         -- Must point to the                                                     Change this to
+         -- eclipse.jdt.ls installation                                           the actual version
+
+
+    -- 💀
+    '-configuration', '/path/to/jdtls_install_location/config_SYSTEM',
+                    -- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^        ^^^^^^
+                    -- Must point to the                      Change to one of `linux`, `win` or `mac`
+                    -- eclipse.jdt.ls installation            Depending on your system.
+
+
+    -- 💀
+    -- See `data directory configuration` section in the README
+    '-data', '/path/to/unique/per/project/workspace/folder'
+  },
+
+  -- 💀
+  -- This is the default if not provided, you can remove it. Or adjust as needed.
+  -- One dedicated LSP server & client will be started per unique root_dir
+  root_dir = require('jdtls.setup').find_root({'.git', 'mvnw', 'gradlew'}),
+
+  -- Here you can configure eclipse.jdt.ls specific settings
+  -- See https://github.com/eclipse/eclipse.jdt.ls/wiki/Running-the-JAVA-LS-server-from-the-command-line#initialize-request
+  -- for a list of options
+  settings = {
+    java = {
+    }
+  },
+
+  -- Language server `initializationOptions`
+  -- You need to extend the `bundles` with paths to jar files
+  -- if you want to use additional eclipse.jdt.ls plugins.
+  --
+  -- See https://github.com/mfussenegger/nvim-jdtls#java-debug-installation
+  --
+  -- If you don't plan on using the debugger or other eclipse.jdt.ls plugins you can remove this
+  init_options = {
+    bundles = {}
+  },
+}
+-- This starts a new client & server,
+-- or attaches to an existing client & server depending on the `root_dir`.
+require('jdtls').start_or_attach(config)
+The ftplugin/java.lua logic is executed each time a FileType event triggers. This happens every time you open a .java file or when you invoke :set ft=java:
+
+You can also find more complete configuration examples in the Wiki.
+
+If you have trouble getting jdtls to work, please read the Troubleshooting section.
+
+data directory configuration
+eclipse.jdt.ls stores project specific data within the folder set via the -data flag. If you're using eclipse.jdt.ls with multiple different projects you must use a dedicated data directory per project.
+
+An example how you could accomplish that is to infer the workspace directory name from the current working directory:
+
+-- If you started neovim within `~/dev/xy/project-1` this would resolve to `project-1`
+local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t')
+
+local workspace_dir = '/path/to/workspace-root/' .. project_name
+--                                               ^^
+--                                               string concattenation in Lua
+
+local config = {
+  cmd = {
+    ...,
+
+    '-data', workspace_dir,
+
+    ...,
+  }
+}
+... is not valid Lua in this context. It is meant as placeholder for the other options from the Configuration section above.)
+
+nvim-lspconfig and nvim-jdtls differences
+Both nvim-lspconfig and nvim-jdtls use the client built into neovim:
+
+  ┌────────────┐           ┌────────────────┐
+  │ nvim-jdtls │           │ nvim-lspconfig │
+  └────────────┘           └────────────────┘
+       |                         |
+      start_or_attach           nvim_lsp.jdtls.setup
+       │                              |
+       │                             setup java filetype hook
+       │    ┌─────────┐                  │
+       └───►│ vim.lsp │◄─────────────────┘
+            └─────────┘
+                .start_client
+                .buf_attach_client
+Some differences between the two:
+
+The setup of lspconfig creates a java filetype hook itself and provides some defaults for the cmd of the config.
+nvim-jdtls delegates the choice when to call start_or_attach to the user.
+nvim-jdtls adds some logic to handle jdt:// URIs. These are necessary to load source code from third party libraries or the JDK.
+nvim-jdtls adds some additional handlers and sets same extra capabilities to enable all the extensions.
+You could use either to start the eclipse.jdt.ls client, but it is recommended to use the start_or_attach method from nvim-jdtls because of the additional capabilities it configures and because of the jdt:// URI handling.
+
+You must not use both at the same time for java. You'd end up with two clients and two language server instances.
+
+UI picker customization
+Tip: You can get a better UI for code-actions and other functions by overriding the jdtls.ui picker. See UI Extensions.
+
+Usage
+nvim-jdtls extends the capabilities of the built-in LSP support in Neovim, so all the functions mentioned in :help lsp will work.
+
+nvim-jdtls provides some extras, for those you'll want to create additional mappings:
+
+nnoremap <A-o> <Cmd>lua require'jdtls'.organize_imports()<CR>
+nnoremap crv <Cmd>lua require('jdtls').extract_variable()<CR>
+vnoremap crv <Esc><Cmd>lua require('jdtls').extract_variable(true)<CR>
+nnoremap crc <Cmd>lua require('jdtls').extract_constant()<CR>
+vnoremap crc <Esc><Cmd>lua require('jdtls').extract_constant(true)<CR>
+vnoremap crm <Esc><Cmd>lua require('jdtls').extract_method(true)<CR>
+
+
+" If using nvim-dap
+" This requires java-debug and vscode-java-test bundles, see install steps in this README further below.
+nnoremap <leader>df <Cmd>lua require'jdtls'.test_class()<CR>
+nnoremap <leader>dn <Cmd>lua require'jdtls'.test_nearest_method()<CR>
+nvim-jdtls also adds several commands if the server starts up correctly:
+
+JdtCompile
+JdtSetRuntime
+JdtUpdateConfig
+JdtUpdateDebugConfig (if dap and java-debug bundles are available)
+JdtUpdateHotcode (if dap and java-debug bundles are available)
+JdtBytecode
+JdtJol
+JdtJshell
+JdtRestart
+API Reference
+See :help jdtls
+
+Debugger (via nvim-dap)
+nvim-jdtls provides integration with nvim-dap.
+
+Once setup correctly, it enables the following additional functionality:
+
+Debug applications via explicit configurations
+Debug automatically discovered main classes
+Debug junit tests. Either whole classes or individual test methods
+For 1 & 2 to work, eclipse.jdt.ls needs to load the java-debug extension. For 3 to work, it also needs to load the vscode-java-test extension.
+
+For usage instructions once installed, read the nvim-dap help. Debugging junit test classes or methods will be possible via these two functions:
+
+require'jdtls'.test_class()
+require'jdtls'.test_nearest_method()
+java-debug installation
+Clone java-debug
+Navigate into the cloned repository (cd java-debug)
+Run ./mvnw clean install
+Set or extend the initializationOptions (= init_options of the config from configuration) as follows:
+config['init_options'] = {
+  bundles = {
+    vim.fn.glob("path/to/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar", 1)
+  };
+}
+nvim-dap setup
+nvim-jdtls will automatically register a java debug adapter with nvim-dap, if nvim-dap is available.
+
+If you're using a plugin manager with explicit dependency manager, make sure that nvim-dap is listed as dependency for nvim-jdtls for this to work.
+
+nvim-dap configuration
+nvim-jdtls includes functionality to discover main classes and create nvim-dap configuration entries for them.
+
+To discover the main classes you have to call require('jdtls.dap').setup_dap_main_class_configs() or use the JdtUpdateDebugConfigs command. It will only discover classes once eclipse.jdt.ls fully loaded the project. Depending on the project that may take a while. Because of that, calling require('jdtls.dap').setup_dap_main_class_configs() as part of an on_attach handler may not work well.
+
+For manual configuration see nvim-dap Adapter Installation Wiki.
+
+To get an overview of all available attach and launch options, take a look at java-debug options. Keep in mind that any java.debug options are settings of the vscode-java client extension and not understood by the debug-adapter itself.
+
+vscode-java-test installation
+To be able to debug junit tests, it is necessary to install the bundles from vscode-java-test:
+
+Clone the repository
+Navigate into the folder (cd vscode-java-test)
+Run npm install
+Run npm run build-plugin
+Extend the bundles in the nvim-jdtls config:
+-- This bundles definition is the same as in the previous section (java-debug installation)
+local bundles = {
+  vim.fn.glob("path/to/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar", 1),
+};
+
+-- This is the new part
+vim.list_extend(bundles, vim.split(vim.fn.glob("/path/to/microsoft/vscode-java-test/server/*.jar", 1), "\n"))
+config['init_options'] = {
+  bundles = bundles;
+}
+Troubleshooting
+The client exits with an error / eclipse.jdt.ls stopped working
+This can have two reasons:
+
+Your cmd definition in the Configuration is wrong.
+Check the log files. Use :JdtShowLogs or open the log file manually. :lua print(vim.fn.stdpath('cache')) lists the path, there should be a lsp.log. You may have to increase the log level. See :help vim.lsp.set_log_level().
+
+Ensure you can start the language server standalone by invoking the cmd defined in the configuration manually within a terminal.
+
+The data folder got corrupted.
+Wipe the folder and ensure that it is in a dedicated directory and not within your project repository. See data directory configuration. You can use :JdtWipeDataAndRestart to do this.
+
+Nothing happens when opening a Java file and I can't use any vim.lsp.buf functions
+This can have several reasons:
+
+You didn't follow Configuration closely and aren't invoking require('jdtls').start_or_attach(config) as part of a java filetype event. Go back to the configuration section and follow it closely.
+
+You made a mistake in your configuration and there is a failure happening when you open the file. Try :set ft=java and look at the :messages output.
+
+eclipse.jdt.ls is starting but it cannot recognize your project, or it cannot import it properly. Try running :JdtCompile full or :lua require('jdtls').compile('full'). It should open the quickfix list with errors if eclipse.jdt.ls started but cannot handle your project.
+
+Check the log files. Use :JdtShowLogs or open the log file manually. :lua print(vim.fn.stdpath('cache')) lists the path, there should be a lsp.log. You may have to increase the log level. See :help vim.lsp.set_log_level().
+
+Error: Unable to access jarfile
+Either the file doesn't exist or you're using ~ characters in your path. Neovim doesn't automatically expand ~ characters in the cmd definition. You either need to write them out or wrap the fragments in vim.fn.expand calls.
+
+Unrecognized option: --add-modules=ALL-SYSTEM
+Eclipse.jdt.ls requires at least Java 17. You're using a lower version.
+
+is a non-project file, only syntax errors are reported
+You're opening a single file without having a Gradle or Maven project. You need to use Gradle or Maven for the full functionality.
+
+Java XY language features are not available
+You need to set the language level via the Gradle or Maven configuration.
+
+If you're starting eclipse.jdt.ls with a Java version that's different from the one the project uses, you need to configure the available Java runtimes. Add them to the config from the configuration section:
+
+local config = {
+  ..., -- not valid Lua, this is a placeholder for your other properties.
+  settings = {
+    java = {
+      configuration = {
+        -- See https://github.com/eclipse/eclipse.jdt.ls/wiki/Running-the-JAVA-LS-server-from-the-command-line#initialize-request
+        -- And search for `interface RuntimeOption`
+        -- The `name` is NOT arbitrary, but must match one of the elements from `enum ExecutionEnvironment` in the link above
+        runtimes = {
+          {
+            name = "JavaSE-11",
+            path = "/usr/lib/jvm/java-11-openjdk/",
+          },
+          {
+            name = "JavaSE-17",
+            path = "/usr/lib/jvm/java-17-openjdk/",
+          },
+        }
+      }
+    }
+  }
+}
+You can also change the language level at runtime using the :JdtSetRuntime command.
+
+Diagnostics and completion suggestions are slow
+Completion requests can be quite expensive on big projects. If you're using some kind of auto-completion plugin that triggers completion requests automatically, consider deactivating it or tuning it so it is less aggressive. Triggering a completion request on each typed character is likely overloading eclipse.jdt.ls.
+
+Newly added dependencies are not found
+You can try running :JdtUpdateConfig to refresh the configuration. If that doesn't work you'll need to restart the language server.
+
+Language server doesn't find classes that should be there
+The language server supports gradle and maven as build tools. Your project should either have a pom.xml or settings.gradle and build.gradle file to declare the dependencies.
+
+As an alternative you could manually specify the dependencies within your nvim-jdtls configuration like the following, but this is not recommended.
+
+config.settings = {
+    java = {
+      project = {
+        referencedLibraries = {
+          '/path/to/dependencyA.jar',
+          '/path/to/dependencyB.jar',
+        },
+      }
+    }
+  }
+If you modify files outside of Neovim (for example with a git checkout), the language client and language server may not detect these changes and the state of the file on disk diverges with the mental model of the language server. If that happens, you need to open all changed files within Neovim and reload them with :e! to synchronize the state.
+
+Indentation settings from eclipse formatting configuration are not recognized
+This is expected. The Neovim shiftwidth and tabstop settings have a higher priority.
+
+About
+Extensions for the built-in LSP support in Neovim for eclipse.jdt.ls
+
+Topics
+java neovim neovim-plugin lsp-client
+Resources
+ Readme
+License
+ GPL-3.0 license
+ Activity
+Stars
+ 939 stars
+Watchers
+ 10 watching
+Forks
+ 56 forks
+Report repository
+Releases 2
+0.2.0
+Latest
+on Dec 22, 2022
++ 1 release
+Sponsor this project
+@mfussenegger
+mfussenegger Mathias Fußenegger
+Learn more about GitHub Sponsors
+Contributors
+16
+@mfussenegger
+@TheBlob42
+@fengwk
+@Abh15h3k
+@lidulibai
+@doitian
+@mikehaertl
+@joaomsa
+@magidc
+@mrcjkb
+@dundargoc
+@figsoda
+@eyesee101
+@Jan9103
++ 2 contributors
+Languages
+Lua
+99.4%
+ 
+Other
+0.6%
+Footer
+© 2024 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+Copied!
+
+/home/uczen/.config/nvim/after/plugin/jdtls.lua
+
+my packer isntall
+
+...
+    use ({'mfussenegger/nvim-jdtls'})
+
+Material:
+nvim-jdtls
+Extensions for the built-in Language Server Protocol support in Neovim (>= 0.6.0) for eclipse.jdt.ls.
+
+Audience
+This project follows the KISS principle and targets users with some experience with Neovim, Java and its build tools Maven or Gradle who prefer configuration as code over GUI configuration. Ease of use is not the main priority.
+
+If you prioritize ease of use over simplicity, you may want to use an alternative:
+
+coc-java
+vscode
+IntelliJ IDEA
+Eclipse
+Extensions
+ organize_imports function to organize imports
+ extract_variable function to introduce a local variable
+ extract_variable_all function to introduce a local variable and replace all occurrences.
+ extract_constant function to extract a constant
+ extract_method function to extract a block of code into a method
+ Open class file contents
+ Code action extensions
+ Generate constructors
+ Generate toString function
+ hashCode and equals generation.
+ Extract variables or methods
+ Generate delegate methods
+ Move package, instance method, static method or type
+ Signature refactoring
+ javap command to show bytecode of current file
+ jol command to show memory usage of current file (jol_path must be set)
+ jshell command to open up jshell with classpath from project set
+ Debugger support via nvim-dap
+ Optional vscode-java-test extensions
+ Generate tests via require("jdtls.tests").generate()
+ Jump to tests or subjects via require("jdtls.tests").goto_subjects()
+Take a look at a demo to see some of the functionality in action.
+
+Plugin Installation
+Requires Neovim (Latest stable (recommended) or nightly)
+nvim-jdtls is a plugin. Install it like any other Vim plugin:
+git clone https://github.com/mfussenegger/nvim-jdtls.git ~/.config/nvim/pack/plugins/start/nvim-jdtls
+Or with vim-plug: Plug 'mfussenegger/nvim-jdtls'
+Or with packer.nvim: use 'mfussenegger/nvim-jdtls'
+Or any other plugin manager
+Language Server Installation
+Install eclipse.jdt.ls by following their Installation instructions.
+
+Configuration (quickstart)
+Add the following to ~/.config/nvim/ftplugin/java.lua (See :help base-directory):
+
+local config = {
+    cmd = {'/path/to/jdt-language-server/bin/jdtls'},
+    root_dir = vim.fs.dirname(vim.fs.find({'gradlew', '.git', 'mvnw'}, { upward = true })[1]),
+}
+require('jdtls').start_or_attach(config)
+Important:
+
+eclipse.jdt.ls requires Java 17
+The jdtls script requires Python 3.9
+You'll have to teach eclipse.jdt.ls about your JDK installations by setting up runtimes if your projects use a different Java version than the one you're using for eclipse.jdt.ls itself. See Java XY language features are not available in the troubleshooting section further below to learn how to do that.
+This should get you started, but will create temporary eclipse data folders when you open a project. Please read the Configuration (verbose) section if you want more control over the configuration or want to understand how things work.
+
+Configuration (verbose)
+To configure nvim-jdtls, add the following in ftplugin/java.lua within the Neovim configuration base directory (e.g. ~/.config/nvim/ftplugin/java.lua, see :help base-directory).
+
+Watch out for the 💀, it indicates that you must adjust something.
+
+-- See `:help vim.lsp.start_client` for an overview of the supported `config` options.
+local config = {
+  -- The command that starts the language server
+  -- See: https://github.com/eclipse/eclipse.jdt.ls#running-from-the-command-line
+  cmd = {
+
+    -- 💀
+    'java', -- or '/path/to/java17_or_newer/bin/java'
+            -- depends on if `java` is in your $PATH env variable and if it points to the right version.
+
+    '-Declipse.application=org.eclipse.jdt.ls.core.id1',
+    '-Dosgi.bundles.defaultStartLevel=4',
+    '-Declipse.product=org.eclipse.jdt.ls.core.product',
+    '-Dlog.protocol=true',
+    '-Dlog.level=ALL',
+    '-Xmx1g',
+    '--add-modules=ALL-SYSTEM',
+    '--add-opens', 'java.base/java.util=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+
+    -- 💀
+    '-jar', '/path/to/jdtls_install_location/plugins/org.eclipse.equinox.launcher_VERSION_NUMBER.jar',
+         -- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                                       ^^^^^^^^^^^^^^
+         -- Must point to the                                                     Change this to
+         -- eclipse.jdt.ls installation                                           the actual version
+
+
+    -- 💀
+    '-configuration', '/path/to/jdtls_install_location/config_SYSTEM',
+                    -- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^        ^^^^^^
+                    -- Must point to the                      Change to one of `linux`, `win` or `mac`
+                    -- eclipse.jdt.ls installation            Depending on your system.
+
+
+    -- 💀
+    -- See `data directory configuration` section in the README
+    '-data', '/path/to/unique/per/project/workspace/folder'
+  },
+
+  -- 💀
+  -- This is the default if not provided, you can remove it. Or adjust as needed.
+  -- One dedicated LSP server & client will be started per unique root_dir
+  root_dir = require('jdtls.setup').find_root({'.git', 'mvnw', 'gradlew'}),
+
+  -- Here you can configure eclipse.jdt.ls specific settings
+  -- See https://github.com/eclipse/eclipse.jdt.ls/wiki/Running-the-JAVA-LS-server-from-the-command-line#initialize-request
+  -- for a list of options
+  settings = {
+    java = {
+    }
+  },
+
+  -- Language server `initializationOptions`
+  -- You need to extend the `bundles` with paths to jar files
+  -- if you want to use additional eclipse.jdt.ls plugins.
+  --
+  -- See https://github.com/mfussenegger/nvim-jdtls#java-debug-installation
+  --
+  -- If you don't plan on using the debugger or other eclipse.jdt.ls plugins you can remove this
+  init_options = {
+    bundles = {}
+  },
+}
+-- This starts a new client & server,
+-- or attaches to an existing client & server depending on the `root_dir`.
+require('jdtls').start_or_attach(config)
+The ftplugin/java.lua logic is executed each time a FileType event triggers. This happens every time you open a .java file or when you invoke :set ft=java:
+
+You can also find more complete configuration examples in the Wiki.
+
+If you have trouble getting jdtls to work, please read the Troubleshooting section.
+
+
+Skip to content
+Navigation Menu
+eclipse-jdtls
+/
+eclipse.jdt.ls
+
+Code
+Issues
+360
+Pull requests
+25
+Discussions
+Actions
+Projects
+Wiki
+Owner avatar
+eclipse.jdt.ls
+Public
+eclipse-jdtls/eclipse.jdt.ls
+Add file
+Folders and files
+Name		
+Latest commit
+ethan-vanderheijdenfbricon
+ethan-vanderheijden
+and
+fbricon
+Only clean default project when building workspace if it exists.
+185a7cd
+ · 
+last week
+History
+.github
+Remove the check-breaking-prs workflow.
+3 months ago
+.mvn/wrapper
+Update maven wrapper to maven 3.9.6
+4 months ago
+.settings
+Set project encoding to UTF-8
+7 years ago
+.vscode
+Update .project files from attempting project import with JDT-LS.
+last year
+images
+Add CONTRIBUTING.md
+3 years ago
+launch
+Do not require o.e.xtend.lib
+last year
+org.eclipse.jdt.ls.core
+Only clean default project when building workspace if it exists.
+last week
+org.eclipse.jdt.ls.filesystem
+Upversion to 1.36.0-SNAPSHOT
+3 weeks ago
+org.eclipse.jdt.ls.logback.appender
+Upversion to 1.36.0-SNAPSHOT
+3 weeks ago
+org.eclipse.jdt.ls.product
+Upversion to 1.36.0-SNAPSHOT
+3 weeks ago
+org.eclipse.jdt.ls.repository
+Upversion to 1.36.0-SNAPSHOT
+3 weeks ago
+org.eclipse.jdt.ls.target
+Update target platform to newer 4.32-I-builds (I20240507-0220)
+last week
+org.eclipse.jdt.ls.tests.syntaxserver
+Upversion to 1.36.0-SNAPSHOT
+3 weeks ago
+org.eclipse.jdt.ls.tests
+Fix indentation for newline preceded by comma
+last week
+.editorconfig
+Add editconfig and enable format on save
+7 years ago
+.gitignore
+Null Analysis does not work for Eclipse/invisible project
+last year
+.mailmap
+Initial commit to Eclipse Foundation
+7 years ago
+.project
+Update .project files from attempting project import with JDT-LS.
+last year
+CHANGELOG.md
+Changelog for 1.35.0
+3 weeks ago
+CODE_OF_CONDUCT.md
+Add missing files to the root of the project.
+2 months ago
+CONTRIBUTING.md
+Provide jdt.ls Bootstrapping Documentation
+2 years ago
+LICENSE
+Relicense to EPL v2.0
+5 years ago
+README.md
+Added OpenSumi as a consuming client. (#3034)
+4 months ago
+SECURITY.md
+Add missing files to the root of the project.
+2 months ago
+USAGE_DATA.md
+Measure elapsed time for project initialization checkpoints.
+last year
+javaConfig.json
+Move filesystem customization into dedicated fragment (#2316)
+2 years ago
+mvnw
+Update maven wrapper to 3.9.1
+last year
+mvnw.cmd
+Update maven wrapper to 3.9.1
+last year
+pom.xml
+Upversion to 1.36.0-SNAPSHOT
+3 weeks ago
+Repository files navigation
+README
+Code of conduct
+License
+Security
+Build Status
+
+Eclipse JDT Language Server
+The Eclipse JDT Language Server is a Java language specific implementation of the Language Server Protocol and can be used with any editor that supports the protocol, to offer good support for the Java Language. The server is based on:
+
+Eclipse LSP4J, the Java binding for the Language Server Protocol,
+Eclipse JDT, which provides Java support (code completion, references, diagnostics...),
+M2Eclipse, which provides Maven support,
+Buildship, which provides Gradle support.
+Features
+Supports compiling projects from Java 1.5 through 19
+Maven pom.xml project support
+Gradle project support (with experimental Android project import support)
+Standalone Java files support
+As-you-type reporting of syntax and compilation errors
+Code completion
+Javadoc hovers
+Organize imports
+Type search
+Code actions (quick fixes, source actions & refactorings)
+Code outline
+Code folding
+Code navigation
+Code lens (references/implementations)
+Code formatting (on-type/selection/file)
+Code snippets
+Highlights (semantic highlighting)
+Semantic selection
+Diagnostic tags
+Call Hierarchy
+Type Hierarchy
+Annotation processing support (automatic for Maven projects)
+Automatic source resolution for classes in jars with maven coordinates
+Extensibility
+Requirements
+The language server requires a runtime environment of Java 17 (at a minimum) to run. This should either be set in the JAVA_HOME environment variable, or on the user's path.
+
+Installation
+There are several options to install eclipse.jdt.ls:
+
+Download and extract a milestone build from http://download.eclipse.org/jdtls/milestones/
+Download and extract a snapshot build from http://download.eclipse.org/jdtls/snapshots/
+Under some Linux distributions you can use the package manager. Search the package repositories for jdtls or eclipse.jdt.ls.
+Build it from source. Clone the repository via git clone and build the project via JAVA_HOME=/path/to/java/17 ./mvnw clean verify. Optionally append -DskipTests=true to by-pass the tests. This command builds the server into the ./org.eclipse.jdt.ls.product/target/repository folder.
+Some editors or editor extensions bundle eclipse.jdt.ls or contain logic to install it. If that is the case, you only need to install the editor extension. For example for Visual Studio Code you can install the Extension Pack for Java and it will take care of the rest.
+
+Running from the command line
+If you built eclipse.jdt.ls from source, cd into ./org.eclipse.jdt.ls.product/target/repository. If you downloaded a milestone or snapshot build, extract the contents.
+
+To start the server in the active terminal, adjust the following command as described further below and run it:
+
+java \
+	-Declipse.application=org.eclipse.jdt.ls.core.id1 \
+	-Dosgi.bundles.defaultStartLevel=4 \
+	-Declipse.product=org.eclipse.jdt.ls.core.product \
+	-Dlog.level=ALL \
+	-Xmx1G \
+	--add-modules=ALL-SYSTEM \
+	--add-opens java.base/java.util=ALL-UNNAMED \
+	--add-opens java.base/java.lang=ALL-UNNAMED \
+	-jar ./plugins/org.eclipse.equinox.launcher_1.5.200.v20180922-1751.jar \
+	-configuration ./config_linux \
+	-data /path/to/data
+Choose a value for -configuration: this is the path to your platform's configuration directory. For Linux, use ./config_linux. For windows, use ./config_win. For mac/OS X, use ./config_mac.
+Change the filename of the jar in -jar ./plugins/... to match the version you built or downloaded.
+Choose a value for -data: An absolute path to your data directory. eclipse.jdt.ls stores workspace specific information in it. This should be unique per workspace/project.
+If you want to debug eclipse.jdt.ls itself, add -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044 right after java and ensure nothing else is running on port 1044. If you want to debug from the start of execution, change suspend=n to suspend=y so the JVM will wait for your debugger prior to starting the server.
+
+Running from command line with wrapper script
+There is also a Python wrapper script available that makes the start up of eclipse.jdt.ls more convenient (no need to juggle with Java options etc.). A sample usage is described below. The script requires Python 3.9.
+
+./org.eclipse.jdt.ls.product/target/repository/bin/jdtls \
+	-configuration ~/.cache/jdtls \
+	-data /path/to/data
+All shown Java options will be set by the wrapper script. Please, note that the -configuration options points to a user's folder to ensure that the configuration folder in org.eclipse.jdt.ls.product/target/repository/config_* remains untouched.
+
+Development Setup
+See Contributing
+
+Managing connection types
+The Java Language server supports sockets, named pipes, and standard streams of the server process to communicate with the client. Client can communicate its preferred connection methods by setting up environment variables or alternatively using system properties (e.g. -DCLIENT_PORT=...)
+
+To use a plain socket, set the following environment variables or system properties before starting the server:
+
+CLIENT_PORT: the port of the socket to connect to
+CLIENT_HOST: the host name to connect to. If not set, defaults to localhost.
+The connection will be used for in and output.
+
+To use standard streams(stdin, stdout) of the server process do not set any of the above environment variables and the server will fall back to standard streams.
+
+For socket and named pipes, the client is expected to create the connections and wait for the server to connect.
+
+Feedback
+File a bug in GitHub Issues.
+Join the discussion on our Mattermost channel
+Tweet us with other feedback.
+Clients
+This repository only contains the server implementation. Here are some known clients consuming this server:
+
+vscode-java : an extension for Visual Studio Code
+ide-java : an extension for Atom
+ycmd : a code-completion and code-comprehension server for multiple clients
+Oni : modern modal editing - powered by Neovim.
+LSP Java : a Java LSP client for Emacs
+Eclipse Theia : Theia is a cloud & desktop IDE framework implemented in TypeScript
+Eclipse IDE JDT.LS : an extension for Eclipse IDE
+coc-java : an extension for coc.nvim
+MS Paint IDE : an IDE for programming in MS Paint
+nvim-jdtls : an extension for Neovim
+multilspy from monitors4codegen : A language-agnostic LSP client in Python, with a library interface. Intended to be used to build applications around language servers
+OpenSumi : A framework that helps you quickly build Cloud or Desktop IDE products.
+Continuous Integration Builds
+Our CI server publishes the server binaries to http://download.eclipse.org/jdtls/snapshots/.
+
+P2 repositories are available under http://download.eclipse.org/jdtls/snapshots/repository/.
+
+Milestone builds are available under http://download.eclipse.org/jdtls/milestones/.
+
+License
+EPL 2.0, See LICENSE file.
+
+About
+Java language server
+
+Topics
+java eclipse language-server-protocol
+Resources
+ Readme
+Code of conduct
+ Code of conduct
+Security policy
+ Security policy
+ Activity
+ Custom properties
+Stars
+ 1.7k stars
+Watchers
+ 49 watching
+Forks
+ 371 forks
+Report repository
+Releases
+ 115 tags
+Contributors
+81
+@fbricon
+@snjeza
+@rgrunber
+@jdneo
+@testforstephen
+@CsCherrYY
+@Eskibear
+@hopehadfield
+@yaohaizh
+@gorkem
+@dependabot[bot]
+@akurtakov
+@mickaelistria
+@aeschli
++ 67 contributors
+Languages
+Java
+97.6%
+ 
+HTML
+1.6%
+ 
+Other
+0.8%
+Footer
+© 2024 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+
+Skip to content
+Navigation Menu
+eclipse-jdtls
+/
+eclipse.jdt.ls
+
+Code
+Issues
+360
+Pull requests
+25
+Discussions
+Actions
+Projects
+Wiki
+Owner avatar
+eclipse.jdt.ls
+Public
+eclipse-jdtls/eclipse.jdt.ls
+Add file
+Folders and files
+Name		
+Latest commit
+ethan-vanderheijdenfbricon
+ethan-vanderheijden
+and
+fbricon
+Only clean default project when building workspace if it exists.
+185a7cd
+ · 
+last week
+History
+.github
+Remove the check-breaking-prs workflow.
+3 months ago
+.mvn/wrapper
+Update maven wrapper to maven 3.9.6
+4 months ago
+.settings
+Set project encoding to UTF-8
+7 years ago
+.vscode
+Update .project files from attempting project import with JDT-LS.
+last year
+images
+Add CONTRIBUTING.md
+3 years ago
+launch
+Do not require o.e.xtend.lib
+last year
+org.eclipse.jdt.ls.core
+Only clean default project when building workspace if it exists.
+last week
+org.eclipse.jdt.ls.filesystem
+Upversion to 1.36.0-SNAPSHOT
+3 weeks ago
+org.eclipse.jdt.ls.logback.appender
+Upversion to 1.36.0-SNAPSHOT
+3 weeks ago
+org.eclipse.jdt.ls.product
+Upversion to 1.36.0-SNAPSHOT
+3 weeks ago
+org.eclipse.jdt.ls.repository
+Upversion to 1.36.0-SNAPSHOT
+3 weeks ago
+org.eclipse.jdt.ls.target
+Update target platform to newer 4.32-I-builds (I20240507-0220)
+last week
+org.eclipse.jdt.ls.tests.syntaxserver
+Upversion to 1.36.0-SNAPSHOT
+3 weeks ago
+org.eclipse.jdt.ls.tests
+Fix indentation for newline preceded by comma
+last week
+.editorconfig
+Add editconfig and enable format on save
+7 years ago
+.gitignore
+Null Analysis does not work for Eclipse/invisible project
+last year
+.mailmap
+Initial commit to Eclipse Foundation
+7 years ago
+.project
+Update .project files from attempting project import with JDT-LS.
+last year
+CHANGELOG.md
+Changelog for 1.35.0
+3 weeks ago
+CODE_OF_CONDUCT.md
+Add missing files to the root of the project.
+2 months ago
+CONTRIBUTING.md
+Provide jdt.ls Bootstrapping Documentation
+2 years ago
+LICENSE
+Relicense to EPL v2.0
+5 years ago
+README.md
+Added OpenSumi as a consuming client. (#3034)
+4 months ago
+SECURITY.md
+Add missing files to the root of the project.
+2 months ago
+USAGE_DATA.md
+Measure elapsed time for project initialization checkpoints.
+last year
+javaConfig.json
+Move filesystem customization into dedicated fragment (#2316)
+2 years ago
+mvnw
+Update maven wrapper to 3.9.1
+last year
+mvnw.cmd
+Update maven wrapper to 3.9.1
+last year
+pom.xml
+Upversion to 1.36.0-SNAPSHOT
+3 weeks ago
+Repository files navigation
+README
+Code of conduct
+License
+Security
+Build Status
+
+Eclipse JDT Language Server
+The Eclipse JDT Language Server is a Java language specific implementation of the Language Server Protocol and can be used with any editor that supports the protocol, to offer good support for the Java Language. The server is based on:
+
+Eclipse LSP4J, the Java binding for the Language Server Protocol,
+Eclipse JDT, which provides Java support (code completion, references, diagnostics...),
+M2Eclipse, which provides Maven support,
+Buildship, which provides Gradle support.
+Features
+Supports compiling projects from Java 1.5 through 19
+Maven pom.xml project support
+Gradle project support (with experimental Android project import support)
+Standalone Java files support
+As-you-type reporting of syntax and compilation errors
+Code completion
+Javadoc hovers
+Organize imports
+Type search
+Code actions (quick fixes, source actions & refactorings)
+Code outline
+Code folding
+Code navigation
+Code lens (references/implementations)
+Code formatting (on-type/selection/file)
+Code snippets
+Highlights (semantic highlighting)
+Semantic selection
+Diagnostic tags
+Call Hierarchy
+Type Hierarchy
+Annotation processing support (automatic for Maven projects)
+Automatic source resolution for classes in jars with maven coordinates
+Extensibility
+Requirements
+The language server requires a runtime environment of Java 17 (at a minimum) to run. This should either be set in the JAVA_HOME environment variable, or on the user's path.
+
+Installation
+There are several options to install eclipse.jdt.ls:
+
+Download and extract a milestone build from http://download.eclipse.org/jdtls/milestones/
+Download and extract a snapshot build from http://download.eclipse.org/jdtls/snapshots/
+Under some Linux distributions you can use the package manager. Search the package repositories for jdtls or eclipse.jdt.ls.
+Build it from source. Clone the repository via git clone and build the project via JAVA_HOME=/path/to/java/17 ./mvnw clean verify. Optionally append -DskipTests=true to by-pass the tests. This command builds the server into the ./org.eclipse.jdt.ls.product/target/repository folder.
+Some editors or editor extensions bundle eclipse.jdt.ls or contain logic to install it. If that is the case, you only need to install the editor extension. For example for Visual Studio Code you can install the Extension Pack for Java and it will take care of the rest.
+
+Running from the command line
+If you built eclipse.jdt.ls from source, cd into ./org.eclipse.jdt.ls.product/target/repository. If you downloaded a milestone or snapshot build, extract the contents.
+
+To start the server in the active terminal, adjust the following command as described further below and run it:
+
+java \
+	-Declipse.application=org.eclipse.jdt.ls.core.id1 \
+	-Dosgi.bundles.defaultStartLevel=4 \
+	-Declipse.product=org.eclipse.jdt.ls.core.product \
+	-Dlog.level=ALL \
+	-Xmx1G \
+	--add-modules=ALL-SYSTEM \
+	--add-opens java.base/java.util=ALL-UNNAMED \
+	--add-opens java.base/java.lang=ALL-UNNAMED \
+	-jar ./plugins/org.eclipse.equinox.launcher_1.5.200.v20180922-1751.jar \
+	-configuration ./config_linux \
+	-data /path/to/data
+Choose a value for -configuration: this is the path to your platform's configuration directory. For Linux, use ./config_linux. For windows, use ./config_win. For mac/OS X, use ./config_mac.
+Change the filename of the jar in -jar ./plugins/... to match the version you built or downloaded.
+Choose a value for -data: An absolute path to your data directory. eclipse.jdt.ls stores workspace specific information in it. This should be unique per workspace/project.
+If you want to debug eclipse.jdt.ls itself, add -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044 right after java and ensure nothing else is running on port 1044. If you want to debug from the start of execution, change suspend=n to suspend=y so the JVM will wait for your debugger prior to starting the server.
+
+Running from command line with wrapper script
+There is also a Python wrapper script available that makes the start up of eclipse.jdt.ls more convenient (no need to juggle with Java options etc.). A sample usage is described below. The script requires Python 3.9.
+
+./org.eclipse.jdt.ls.product/target/repository/bin/jdtls \
+	-configuration ~/.cache/jdtls \
+	-data /path/to/data
+All shown Java options will be set by the wrapper script. Please, note that the -configuration options points to a user's folder to ensure that the configuration folder in org.eclipse.jdt.ls.product/target/repository/config_* remains untouched.
+
+Development Setup
+See Contributing
+
+Managing connection types
+The Java Language server supports sockets, named pipes, and standard streams of the server process to communicate with the client. Client can communicate its preferred connection methods by setting up environment variables or alternatively using system properties (e.g. -DCLIENT_PORT=...)
+
+To use a plain socket, set the following environment variables or system properties before starting the server:
+
+CLIENT_PORT: the port of the socket to connect to
+CLIENT_HOST: the host name to connect to. If not set, defaults to localhost.
+The connection will be used for in and output.
+
+To use standard streams(stdin, stdout) of the server process do not set any of the above environment variables and the server will fall back to standard streams.
+
+For socket and named pipes, the client is expected to create the connections and wait for the server to connect.
+
+Feedback
+File a bug in GitHub Issues.
+Join the discussion on our Mattermost channel
+Tweet us with other feedback.
+Clients
+This repository only contains the server implementation. Here are some known clients consuming this server:
+
+vscode-java : an extension for Visual Studio Code
+ide-java : an extension for Atom
+ycmd : a code-completion and code-comprehension server for multiple clients
+Oni : modern modal editing - powered by Neovim.
+LSP Java : a Java LSP client for Emacs
+Eclipse Theia : Theia is a cloud & desktop IDE framework implemented in TypeScript
+Eclipse IDE JDT.LS : an extension for Eclipse IDE
+coc-java : an extension for coc.nvim
+MS Paint IDE : an IDE for programming in MS Paint
+nvim-jdtls : an extension for Neovim
+multilspy from monitors4codegen : A language-agnostic LSP client in Python, with a library interface. Intended to be used to build applications around language servers
+OpenSumi : A framework that helps you quickly build Cloud or Desktop IDE products.
+Continuous Integration Builds
+Our CI server publishes the server binaries to http://download.eclipse.org/jdtls/snapshots/.
+
+P2 repositories are available under http://download.eclipse.org/jdtls/snapshots/repository/.
+
+Milestone builds are available under http://download.eclipse.org/jdtls/milestones/.
+
+License
+EPL 2.0, See LICENSE file.
+
+About
+Java language server
+
+Topics
+java eclipse language-server-protocol
+Resources
+ Readme
+Code of conduct
+ Code of conduct
+Security policy
+ Security policy
+ Activity
+ Custom properties
+Stars
+ 1.7k stars
+Watchers
+ 49 watching
+Forks
+ 371 forks
+Report repository
+Releases
+ 115 tags
+Contributors
+81
+@fbricon
+@snjeza
+@rgrunber
+@jdneo
+@testforstephen
+@CsCherrYY
+@Eskibear
+@hopehadfield
+@yaohaizh
+@gorkem
+@dependabot[bot]
+@akurtakov
+@mickaelistria
+@aeschli
++ 67 contributors
+Languages
+Java
+97.6%
+ 
+HTML
+1.6%
+ 
+Other
+0.8%
+Footer
+© 2024 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact
+Manage cookies
+Do not share my personal information

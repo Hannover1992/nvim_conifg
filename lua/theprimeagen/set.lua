@@ -31,20 +31,9 @@ vim.opt.backup = false
 -- Enable terminal GUI colors
 vim.opt.termguicolors = true
 
--- Center the screen when scrolling with Ctrl-d/u
-vim.keymap.set("n", "<C-d>", "<C-d>zz")
-vim.keymap.set("n", "<C-u>", "<C-u>zz")
 
--- Center the screen when searching with n/N
-vim.keymap.set("n", "n", "nzzzv")
-vim.keymap.set("n", "N", "Nzzzv")
 
--- Remap clipboard interactions for easier copying/pasting
-vim.keymap.set("n", "<leader>y", "\"+y")
-vim.keymap.set("v", "<leader>y", "\"+y")
-vim.keymap.set("n", "<leader>Y", "\"+Y")
-vim.keymap.set("n", "<leader>pp", "\"+p")
-
+vim.lsp.set_log_level("debug")
 
 -- -- Aktiviert die Anzeige von unsichtbaren Zeichen
 -- vim.opt.list = true

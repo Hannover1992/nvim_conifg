@@ -53,6 +53,16 @@ return require('packer').startup(function(use) -- Packer can manage itself
 		}
 	}
 
+    use {'mfussenegger/nvim-jdtls'}
+
+    use({
+        "L3MON4D3/LuaSnip",
+        -- follow latest release.
+        tag = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
+        -- install jsregexp (optional!:).
+        run = "make install_jsregexp"
+    })
+
 
 	-- omni sharp
 	use { 'Hoffs/omnisharp-extended-lsp.nvim' }
@@ -103,19 +113,6 @@ return require('packer').startup(function(use) -- Packer can manage itself
       use {'github/copilot.vim'}
 
 
-
-	--Debugger
-	-- use {'mfussenegger/nvim-dap'}
-	-- use {
-	-- 	"rcarriga/nvim-dap-ui",
-	-- 	config = function ()
-	-- 		require('dapui').setup()
-	-- 	end,
-	-- 	requires = {
-	-- 		"mfussenegger/nvim-dap"
-	-- 	}
-	-- }
-
     use { "rcarriga/nvim-dap-ui", 
 		config = function ()
 			require('dapui').setup()
@@ -138,30 +135,9 @@ use {'theHamsta/nvim-dap-virtual-text',
 --ZenMode
 use {'folke/zen-mode.nvim',
 	config = function ()
-		require("zen-mode").setup(
-		-- {
-		-- 	window = {
-		-- 		backdrop = 0.95,
-		-- 		width = 160, 
-		-- 		height = 1, 
-		-- 		options = {
-		-- 			list = true
-		-- 		},
-		-- 	},
-		-- 	plugins = {
-		-- 		options = {
-		-- 			enabled = true,
-		-- 		},
-		-- 		kitty = {
-		-- 			enabled = true,
-		-- 		},
-		-- 	},
-		-- }
-		)
-		-- vim.cmd([[autocmd VimEnter * ZenMode]])
+		require("zen-mode").setup()
 	end
 }
 
 end)
-
 
