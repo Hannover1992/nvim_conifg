@@ -139,5 +139,8 @@ use {'folke/zen-mode.nvim',
 	end
 }
 
+-- clipBoard
+use {'ojroques/nvim-osc52'}
+
 end)
 

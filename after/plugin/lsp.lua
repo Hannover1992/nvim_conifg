@@ -12,8 +12,8 @@ lsp_zero.on_attach(function(client, bufnr)
     vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
     vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
     vim.keymap.set("n", "<leader><CR>", function() vim.lsp.buf.code_action() end, opts)
-    vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts) -- jump to previous diagnostic in buffer
-    vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts) -- jump to next diagnostic in buffer
+    -- vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts) -- jump to previous diagnostic in buffer
+    -- vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts) -- jump to next diagnostic in buffer
     vim.keymap.set("n", "<leader>cw", function() vim.lsp.buf.rename() end, opts)
     vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
     vim.keymap.set("n", "<leader>ls", function() vim.lsp.stop() end, opts) -- stop lsp
@@ -23,6 +23,33 @@ lsp_zero.on_attach(function(client, bufnr)
 
     --      opts.desc = "Show LSP definitions"
 end)
+
+
+local opts = { noremap = true, silent = true }
+
+-- Function to copy the current diagnostic to the clipboard
+local function copy_diagnostic_to_clipboard()
+  local diagnostics = vim.diagnostic.get(0, {lnum = vim.fn.line('.') - 1})
+  if #diagnostics > 0 then
+    local message = diagnostics[1].message
+    vim.fn.setreg('+', message) -- Copy to system clipboard
+    print('Copied to clipboard: ' .. message)
+  else
+    print('No diagnostic found at current line.')
+  end
+end
+
+-- Jump to previous diagnostic and copy it to clipboard
+vim.keymap.set("n", "[d", function()
+  vim.diagnostic.goto_prev(opts)
+  copy_diagnostic_to_clipboard()
+end, opts)
+
+-- Jump to next diagnostic and copy it to clipboard
+vim.keymap.set("n", "]d", function()
+  vim.diagnostic.goto_next(opts)
+  copy_diagnostic_to_clipboard()
+end, opts)
 
 require('mason').setup({})
 require('mason-lspconfig').setup({
