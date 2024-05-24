@@ -65,6 +65,8 @@ cmp.setup({
 
 require'lspconfig'.omnisharp.setup{}
 
+require'lspconfig'.csharp_ls.setup{}
+
 
 local lsp_config= require("lspconfig")
 
