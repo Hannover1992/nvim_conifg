@@ -42,12 +42,14 @@ end
 -- Jump to previous diagnostic and copy it to clipboard
 vim.keymap.set("n", "[d", function()
   vim.diagnostic.goto_prev(opts)
+  print('Navigated to previous diagnostic')
   copy_diagnostic_to_clipboard()
 end, opts)
 
 -- Jump to next diagnostic and copy it to clipboard
 vim.keymap.set("n", "]d", function()
   vim.diagnostic.goto_next(opts)
+  print('Navigated to next diagnostic')
   copy_diagnostic_to_clipboard()
 end, opts)
 
